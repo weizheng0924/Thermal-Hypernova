@@ -106,9 +106,9 @@ class Enemy extends Entity {
       this.y = Math.random() < 0.5 ? -50 : h + 50;
     }
 
-    // Move towards player
+    // Move towards player (1.2x difficulty)
     const angle = Math.atan2(player.y - this.y, player.x - this.x);
-    const speed = Math.random() * 100 + 50;
+    const speed = (Math.random() * 100 + 50) * 1.2;
     this.vx = Math.cos(angle) * speed;
     this.vy = Math.sin(angle) * speed;
   }
@@ -143,8 +143,8 @@ export class GameEngine {
   state: GameState = 'MENU';
   stats: GameStats = {
     score: 0,
-    energy: 100,
-    maxEnergy: 100,
+    energy: 150,
+    maxEnergy: 150,
     level: 1
   };
 
@@ -206,7 +206,7 @@ export class GameEngine {
 
   start() {
     this.state = 'PLAYING';
-    this.stats = { score: 0, energy: 100, maxEnergy: 100, level: 1 };
+    this.stats = { score: 0, energy: 150, maxEnergy: 150, level: 1 };
     this.player = new Player(this.width / 2, this.height / 2);
     this.entities = [];
     this.particles = [];
@@ -215,8 +215,8 @@ export class GameEngine {
   }
 
   triggerHypernova() {
-    if (this.stats.energy >= 50) {
-      this.stats.energy -= 50;
+    if (this.stats.energy >= 30) {
+      this.stats.energy -= 30;
 
       // Create massive explosion
       for (let i = 0; i < 50; i++) {
@@ -263,7 +263,7 @@ export class GameEngine {
 
     // Spawning
     this.spawnTimer += dt;
-    if (this.spawnTimer > 1.0 / (1 + this.stats.level * 0.2)) {
+    if (this.spawnTimer > 1.0 / (1 + this.stats.level * 0.24)) {
       this.spawnTimer = 0;
       if (Math.random() < 0.7) {
         this.entities.push(new Enemy(this.width, this.height, this.player));
