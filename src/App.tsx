@@ -47,7 +47,7 @@ function App() {
           <button className="btn-start" onClick={startGame}>INITIALIZE CORE</button>
           <div className="controls">
             <p>MOUSE/TOUCH to Move</p>
-            <p>CLICK/TAP to Hypernova (Costs 30 Energy)</p>
+            <p>CLICK/DOUBLE-TAP to Hypernova (Costs 30 Energy)</p>
           </div>
         </div>
       )}

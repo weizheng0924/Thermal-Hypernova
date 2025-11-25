@@ -164,12 +164,16 @@ export class GameEngine {
   private handleMouseDown: () => void;
   private handleTouchMove: (e: TouchEvent) => void;
   private handleTouchStart: (e: TouchEvent) => void;
+  private handleTouchEnd: (e: TouchEvent) => void;
+  private lastTapTime: number = 0;
+  private isMobile: boolean = false;
 
   constructor(canvas: HTMLCanvasElement, onStatsUpdate: (stats: GameStats) => void, onGameOver: (score: number) => void) {
     this.canvas = canvas;
     this.ctx = canvas.getContext('2d')!;
     this.onStatsUpdate = onStatsUpdate;
     this.onGameOver = onGameOver;
+    this.isMobile = 'ontouchstart' in window;
 
     this.resize();
 
@@ -197,8 +201,24 @@ export class GameEngine {
     this.handleTouchStart = (e: TouchEvent) => {
       if (this.state === 'PLAYING') {
         e.preventDefault();
-        this.triggerHypernova();
+        // Double tap detection for Hypernova
+        const now = Date.now();
+        const timeSinceLastTap = now - this.lastTapTime;
+        if (timeSinceLastTap < 300 && timeSinceLastTap > 0) {
+          this.triggerHypernova();
+        }
+        this.lastTapTime = now;
+
+        // Update position on touch start
+        if (this.player && e.touches.length > 0) {
+          const touch = e.touches[0];
+          this.player.x = touch.clientX;
+          this.player.y = touch.clientY;
+        }
       }
+    };
+    this.handleTouchEnd = (e: TouchEvent) => {
+      e.preventDefault();
     };
 
     window.addEventListener('resize', this.handleResize);
@@ -206,6 +226,7 @@ export class GameEngine {
     window.addEventListener('mousedown', this.handleMouseDown);
     window.addEventListener('touchmove', this.handleTouchMove, { passive: false });
     window.addEventListener('touchstart', this.handleTouchStart, { passive: false });
+    window.addEventListener('touchend', this.handleTouchEnd, { passive: false });
   }
 
   destroy() {
@@ -214,6 +235,7 @@ export class GameEngine {
     window.removeEventListener('mousedown', this.handleMouseDown);
     window.removeEventListener('touchmove', this.handleTouchMove);
     window.removeEventListener('touchstart', this.handleTouchStart);
+    window.removeEventListener('touchend', this.handleTouchEnd);
     cancelAnimationFrame(this.animationId);
   }
 
@@ -238,8 +260,9 @@ export class GameEngine {
     if (this.stats.energy >= 30) {
       this.stats.energy -= 30;
 
-      // Create massive explosion
-      for (let i = 0; i < 50; i++) {
+      // Create massive explosion (reduced particles on mobile)
+      const particleCount = this.isMobile ? 25 : 50;
+      for (let i = 0; i < particleCount; i++) {
         this.particles.push(new Particle(this.player!.x, this.player!.y, '#00ffff', Math.random() * 500 + 200, Math.random() * 5 + 2));
       }
 
@@ -258,7 +281,8 @@ export class GameEngine {
   }
 
   createExplosion(x: number, y: number, color: string, count: number) {
-    for (let i = 0; i < count; i++) {
+    const actualCount = this.isMobile ? Math.ceil(count / 2) : count;
+    for (let i = 0; i < actualCount; i++) {
       this.particles.push(new Particle(x, y, color, Math.random() * 200 + 50, Math.random() * 3 + 1));
     }
   }
