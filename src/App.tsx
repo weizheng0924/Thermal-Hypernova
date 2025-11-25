@@ -6,7 +6,7 @@ function App() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const engineRef = useRef<GameEngine | null>(null);
   const [gameState, setGameState] = useState<'MENU' | 'PLAYING' | 'GAME_OVER'>('MENU');
-  const [stats, setStats] = useState<GameStats>({ score: 0, energy: 100, maxEnergy: 100, level: 1 });
+  const [stats, setStats] = useState<GameStats>({ score: 0, energy: 150, maxEnergy: 150, level: 1 });
   const [finalScore, setFinalScore] = useState(0);
 
   useEffect(() => {
@@ -47,7 +47,7 @@ function App() {
           <button className="btn-start" onClick={startGame}>INITIALIZE CORE</button>
           <div className="controls">
             <p>MOUSE to Move</p>
-            <p>CLICK to Hypernova (Costs 50 Energy)</p>
+            <p>CLICK to Hypernova (Costs 30 Energy)</p>
           </div>
         </div>
       )}
