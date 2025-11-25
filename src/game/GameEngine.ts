@@ -218,7 +218,9 @@ export class GameEngine {
       }
     };
     this.handleTouchEnd = (e: TouchEvent) => {
-      e.preventDefault();
+      if (this.state === 'PLAYING') {
+        e.preventDefault();
+      }
     };
 
     window.addEventListener('resize', this.handleResize);
