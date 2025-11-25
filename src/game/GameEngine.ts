@@ -143,8 +143,8 @@ export class GameEngine {
   state: GameState = 'MENU';
   stats: GameStats = {
     score: 0,
-    energy: 150,
-    maxEnergy: 150,
+    energy: 200,
+    maxEnergy: 200,
     level: 1
   };
 
@@ -162,6 +162,8 @@ export class GameEngine {
   private handleResize: () => void;
   private handleMouseMove: (e: MouseEvent) => void;
   private handleMouseDown: () => void;
+  private handleTouchMove: (e: TouchEvent) => void;
+  private handleTouchStart: (e: TouchEvent) => void;
 
   constructor(canvas: HTMLCanvasElement, onStatsUpdate: (stats: GameStats) => void, onGameOver: (score: number) => void) {
     this.canvas = canvas;
@@ -184,16 +186,34 @@ export class GameEngine {
         this.triggerHypernova();
       }
     };
+    this.handleTouchMove = (e: TouchEvent) => {
+      if (this.state === 'PLAYING' && this.player && e.touches.length > 0) {
+        e.preventDefault();
+        const touch = e.touches[0];
+        this.player.x = touch.clientX;
+        this.player.y = touch.clientY;
+      }
+    };
+    this.handleTouchStart = (e: TouchEvent) => {
+      if (this.state === 'PLAYING') {
+        e.preventDefault();
+        this.triggerHypernova();
+      }
+    };
 
     window.addEventListener('resize', this.handleResize);
     window.addEventListener('mousemove', this.handleMouseMove);
     window.addEventListener('mousedown', this.handleMouseDown);
+    window.addEventListener('touchmove', this.handleTouchMove, { passive: false });
+    window.addEventListener('touchstart', this.handleTouchStart, { passive: false });
   }
 
   destroy() {
     window.removeEventListener('resize', this.handleResize);
     window.removeEventListener('mousemove', this.handleMouseMove);
     window.removeEventListener('mousedown', this.handleMouseDown);
+    window.removeEventListener('touchmove', this.handleTouchMove);
+    window.removeEventListener('touchstart', this.handleTouchStart);
     cancelAnimationFrame(this.animationId);
   }
 
@@ -206,7 +226,7 @@ export class GameEngine {
 
   start() {
     this.state = 'PLAYING';
-    this.stats = { score: 0, energy: 150, maxEnergy: 150, level: 1 };
+    this.stats = { score: 0, energy: 200, maxEnergy: 200, level: 1 };
     this.player = new Player(this.width / 2, this.height / 2);
     this.entities = [];
     this.particles = [];
